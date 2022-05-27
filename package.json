@@ -12,6 +12,8 @@
     "@astrojs/solid-js": "^0.1.2",
     "@astrojs/tailwind": "^0.2.1",
     "astro": "^1.0.0-beta.35",
+    "prettier-plugin-astro": "^0.0.12",
     "solid-js": "^1.4.3"
-  }
+  },
+  "prettier": {}
 }
