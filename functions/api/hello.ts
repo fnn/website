@@ -1,3 +1,3 @@
-export async function onRequestPost() {
+export async function onRequest() {
   return new Response(`Hello world from Fynn`);
 }
