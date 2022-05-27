@@ -1,0 +1,9 @@
+---
+export interface Props extends astroHTML.JSX.HTMLAttributes<EventTarget> {}
+
+const props = Astro.props as Props;
+---
+
+<a {...props} class="text-sky-600 hover:text-sky-400">
+  <slot />
+</a>

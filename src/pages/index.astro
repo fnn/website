@@ -1,32 +1,50 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Link from "../components/Link.astro";
+import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="Fynn">
-	<main class="container mx-auto mt-36 px-4">
-		<div class="flex flex-col gap-36">
-			<section class="flex flex-col gap-12">
-				<h1 class="text-7xl font-medium text-slate-800">Fynn</h1>
-				<p class="text-2xl font-light text-slate-500">Web Developer from Berlin</p>
-			</section>
+  <main class="container mx-auto mt-36 px-4">
+    <div class="flex flex-col gap-36">
+      <section class="flex flex-col gap-12">
+        <h1 class="text-7xl font-medium text-slate-800">Fynn</h1>
+        <p class="text-2xl font-light text-slate-500">
+          Web Developer from Berlin
+        </p>
+      </section>
 
-			<section class="flex flex-col gap-4">
-				<h2 class="text-2xl font-medium text-slate-800">Links</h2>
-				<ul role="list" class="flex gap-4">
-					<li>
-						<a href="https://www.polywork.com/fnn" target="_blank" rel="noopener noreferrer"
-							class="text-sky-600 hover:text-sky-400">Polywork</a>
-					</li>
-					<li>
-						<a href="https://twitter.com/fnnpth" target="_blank" rel="noopener noreferrer"
-							class="text-sky-600 hover:text-sky-400">Twitter</a>
-					</li>
-					<li>
-						<a href="https://github.com/fnn" target="_blank" rel="noopener noreferrer"
-							class="text-sky-600 hover:text-sky-400">GitHub</a>
-					</li>
-				</ul>
-			</section>
-		</div>
-	</main>
+      <section class="flex flex-col gap-4">
+        <h2 class="text-2xl font-medium text-slate-800">Links</h2>
+        <ul role="list" class="flex gap-4">
+          <li>
+            <Link
+              href="https://www.polywork.com/fnn"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Polywork
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="https://twitter.com/fnnpth"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Twitter
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="https://github.com/fnn"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </Link>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </main>
 </Layout>
