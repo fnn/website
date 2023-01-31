@@ -1,4 +1,4 @@
-import { createMemo, createSignal, For } from "solid-js";
+import { createMemo, createSignal, For, Show } from "solid-js";
 
 export default function WordCount() {
   let [text, setText] = createSignal("");
@@ -26,6 +26,10 @@ export default function WordCount() {
     };
   });
 
+  let readingTime = createMemo(() => {
+    return Math.ceil(words().length / 250);
+  });
+
   let density = createMemo(() => {
     let densityMap: Map<string, number> = words().reduce(
       (p, c) => p.set(c, (p.get(c) || 0) + 1),
@@ -38,16 +42,27 @@ export default function WordCount() {
 
   return (
     <div class="flex flex-col gap-6">
-      <div class="flex gap-6 mx-auto px-10 container max-w-4xl">
-        <Stat label="Characters" value={counts().chars} />
-        <Stat label="Words" value={counts().words} />
-        <Stat label="Sentances" value={counts().sentences} />
-        <Stat label="Paragraphs" value={counts().paragraphs} />
+      <div class="flex justify-between mx-auto px-10 container max-w-4xl">
+        <div class="flex gap-6">
+          <Stat label="Characters" value={counts().chars} />
+          <Stat label="Words" value={counts().words} />
+          <Stat label="Sentances" value={counts().sentences} />
+          <Stat label="Paragraphs" value={counts().paragraphs} />
+        </div>
+
+        <div class="flex gap-6">
+          <Show when={counts().chars > 20}>
+            <span class="flex gap-1">
+              <Stat label="Reading" value={readingTime()} />
+              <span>min</span>
+            </span>
+          </Show>
+        </div>
       </div>
 
       <div class="mx-auto container max-w-4xl">
         <textarea
-          class="p-10 w-full rounded-3xl dark:bg-slate-800 bg-slate-100 resize-none text-lg"
+          class="p-10 w-full rounded-3xl dark:bg-slate-800 bg-slate-100 border border-slate-700 resize-none text-lg"
           onInput={(e) => {
             setText(e.currentTarget.value);
           }}
