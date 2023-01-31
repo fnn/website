@@ -62,7 +62,7 @@ export default function WordCount() {
 
       <div class="mx-auto container max-w-4xl">
         <textarea
-          class="p-10 w-full rounded-3xl dark:bg-slate-800 bg-slate-100 border border-slate-700 resize-none text-lg"
+          class="p-10 w-full rounded-3xl dark:bg-slate-800 bg-white border dark:border-slate-700 border-slate-200 resize-none text-lg shadow-2xl dark:shadow-black/25 shadow-slate-200"
           onInput={(e) => {
             setText(e.currentTarget.value);
           }}
@@ -75,7 +75,7 @@ export default function WordCount() {
         <ul class="flex gap-2 flex-wrap justify-center">
           <For each={density()}>
             {(stat) => (
-              <li class="flex gap-6 px-2 py-1 border border-slate-700 rounded">
+              <li class="flex gap-6 px-2 py-1 border dark:border-slate-700 border-slate-300 rounded">
                 <span class="font-semibold">{stat[0]}</span>
                 <span class="font-extralight dark:text-slate-400">
                   {stat[1]}
