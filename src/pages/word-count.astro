@@ -1,0 +1,14 @@
+---
+import Layout from "../layouts/Layout.astro";
+import WordCount from "../components/WordCount";
+---
+
+<Layout title="Fynn - Word Count">
+  <main class="mb-12">
+    <div class="my-6 mx-auto px-10 container max-w-4xl">
+      <h1 class="text-2xl font-light">Word Count</h1>
+    </div>
+
+    <WordCount client:load />
+  </main>
+</Layout>
