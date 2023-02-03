@@ -11,9 +11,10 @@
   "prettier": {},
   "dependencies": {
     "@astrojs/cloudflare": "^6.1.1",
-    "@astrojs/solid-js": "^2.0.1",
+    "@astrojs/mdx": "^0.16.0",
+    "@astrojs/solid-js": "^2.0.2",
     "@astrojs/tailwind": "^3.0.1",
-    "astro": "^2.0.5",
+    "astro": "^2.0.6",
     "prettier-plugin-astro": "^0.8.0",
     "solid-js": "^1.6.10"
   }
