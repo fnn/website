@@ -163,7 +163,7 @@ function SummaryView() {
 
   return (
     <Show when={store.activeSession?.status === "finished"}>
-      <div class="flex flex-col gap-12 mt-8 p-6 rounded-3xl border select-none border-slate-200 dark:border-slate-800 shadow-2xl shadow-gray-300 dark:shadow-none">
+      <div class="flex flex-col gap-12 p-4 md:p-6 rounded-3xl md:border select-none border-slate-200 dark:border-slate-800 shadow-2xl shadow-gray-300 dark:shadow-none">
         <div>
           <div class="mb-2 text-3xl font-medium">Session finished</div>
           <div class="text-slate-500 dark:text-slate-400">
@@ -190,13 +190,13 @@ function SummaryView() {
             <div class="mb-3 text-sm font-extralight text-slate-500 dark:text-slate-400 dark:opacity-80 select-none">
               START
             </div>
-            <div class="text-5xl font-medium">
+            <div class="text-4xl md:text-5xl font-medium">
               {new Date(store.activeSession!.start)
                 .toISOString()
                 .substring(11, 16)}
             </div>
           </div>
-          <div class="flex gap-1 items-center mt-8 text-slate-500 dark:text-slate-400 dark:opacity-80">
+          <div class="flex gap-1 items-center mt-7 text-slate-500 dark:text-slate-400 dark:opacity-80">
             <div>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -239,7 +239,7 @@ function SummaryView() {
             <div class="mb-3 text-sm font-extralight text-slate-500 dark:text-slate-400 dark:opacity-80 select-none">
               END
             </div>
-            <div class="text-5xl font-medium">
+            <div class="text-4xl md:text-5xl font-medium">
               {new Date(store.activeSession!.end!)
                 .toISOString()
                 .substring(11, 16)}
@@ -254,7 +254,7 @@ function SummaryView() {
             </h2>
             <For each={finishedTasks()}>
               {(task) => (
-                <div class="flex justify-between items-center px-4 py-2 transition-opacity opacity-100 rounded-md bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 border-slate-200 select-none">
+                <div class="flex justify-between items-center px-4 h-12 transition-opacity opacity-100 rounded-md bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 border-slate-200 select-none">
                   <div class="flex gap-3 items-center">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -320,7 +320,7 @@ function SummaryView() {
         <div class="flex justify-end">
           <div>
             <button
-              class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-3xl text-sm px-4 py-2 focus:outline-none dark:focus:ring-blue-800 disabled:bg-blue-600 disabled:opacity-40 transition-all"
+              class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-3xl text-sm px-4 py-2 touch:px-7 touch:py-3 focus:outline-none dark:focus:ring-blue-800 disabled:bg-blue-600 disabled:opacity-40 transition-all"
               onClick={() => {
                 actions.closeSession();
               }}
@@ -350,13 +350,13 @@ function SessionView() {
   return (
     <Show when={store.activeSession?.status === "running"}>
       <Counter />
-      <div class="flex flex-col gap-24 mt-8 p-6 rounded-3xl border border-transparent">
+      <div class="flex flex-col gap-24 p-4 md:p-6 rounded-3xl border border-transparent">
         {/* Active Task */}
         <div>
           <h2 class="mb-3 text-sm font-extralight text-slate-500 dark:text-slate-400 dark:opacity-80 select-none">
             WORKING ON
           </h2>
-          <div class="scale-[1.265] flex justify-between items-center px-3 py-2 transition-opacity font-medium rounded-xl shadow-lg cursor-default bg-gradient-to-t from-blue-700 to-blue-500 dark:from-blue-900 dark:to-blue-600 text-blue-100">
+          <div class="md:scale-[1.265] flex justify-between items-center px-3 h-12 transition-opacity font-medium rounded-md md:rounded-xl shadow-lg cursor-default bg-gradient-to-t from-blue-700 to-blue-500 dark:from-blue-900 dark:to-blue-600 text-blue-100">
             <div class="flex items-center gap-3">
               <button
                 onClick={() => {
@@ -405,7 +405,7 @@ function SessionView() {
             <For each={unfinishedTasks()}>
               {(task) => (
                 <button
-                  class="flex justify-between items-center px-3 py-2 transition-opacity opacity-80 hover:opacity-100 rounded-md bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 border-slate-200 cursor-pointer select-none"
+                  class="flex justify-between items-center px-3 h-12 transition-opacity opacity-80 hover:opacity-100 rounded-md bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 border-slate-200 cursor-pointer select-none"
                   onClick={() => {
                     actions.setStore("session", [
                       task.id,
@@ -452,7 +452,7 @@ function SessionView() {
             </h2>
             <For each={finishedTasks()}>
               {(task) => (
-                <div class="flex justify-between items-center px-3 py-2 opacity-50 dark:opacity-30 rounded-md border border-slate-200 dark:border-slate-700 cursor-default">
+                <div class="flex justify-between items-center px-3 h-12 opacity-50 dark:opacity-30 rounded-md border border-slate-200 dark:border-slate-700 cursor-default">
                   <div class="flex items-center gap-3">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -480,14 +480,14 @@ function SessionView() {
             </For>
           </div>
         </Show>
-      </div>
-      <div class="mt-24 flex justify-end">
-        <button
-          class="text-slate-800 dark:text-white border border-slate-200 hover:bg-slate-100 dark:border-slate-800 dark:hover:border-slate-700 dark:hover:bg-slate-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-3xl text-sm px-4 py-2 focus:outline-none dark:focus:ring-blue-800 disabled:bg-blue-600 disabled:opacity-40 transition-all"
-          onClick={() => actions.endSession()}
-        >
-          End Session
-        </button>
+        <div class="flex justify-end">
+          <button
+            class="text-slate-800 dark:text-white border border-slate-200 hover:bg-slate-100 dark:border-slate-800 dark:hover:border-slate-700 dark:hover:bg-slate-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-3xl text-sm px-4 py-2 touch:px-7 touch:py-3  focus:outline-none dark:focus:ring-blue-800 disabled:bg-blue-600 disabled:opacity-40 transition-all"
+            onClick={() => actions.endSession()}
+          >
+            End Session
+          </button>
+        </div>
       </div>
     </Show>
   );
@@ -514,9 +514,9 @@ function Counter() {
 
   return (
     <div
-      class="flex justify-center mt-12 text-slate-200 dark:text-slate-800 text-7xl font-medium select-none hover:opacity-100 transition-opacity duration-[6s] tabular-nums"
+      class="flex justify-center my-6 md:my-12 text-slate-200 dark:text-slate-800 text-7xl font-medium select-none hover:opacity-100 transition-opacity duration-[6s] tabular-nums drop-shadow-xl"
       classList={{
-        "opacity-0": hide(),
+        "opacity-0 touch:opacity-100": hide(),
       }}
     >
       {time()}
@@ -659,7 +659,7 @@ function DragAndDrop() {
           }
 
           return (
-            <div class="flex justify-between items-center px-3 py-2 rounded-md bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 border-slate-200 shadow-xl scale-105 -rotate-1 origin-left">
+            <div class="flex justify-between items-center px-3 h-12 rounded-md bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 border-slate-200 shadow-xl scale-105 -rotate-1 origin-left">
               <div class="w-4 mr-2" />
               <Input
                 readOnly
@@ -676,7 +676,6 @@ function DragAndDrop() {
 
 function Session() {
   let droppable = createDroppable("session");
-
   let [store, actions] = useStore();
   let tasks = () => store.session.map((id) => store.tasks[id]);
   let totalTime = () => tasks().reduce((p, c) => p + c.minutes, 0);
@@ -705,7 +704,7 @@ function Session() {
         <h1 class="font-light text-sm">Session</h1>
       </div>
 
-      <div class="p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl shadow-gray-300 dark:shadow-none">
+      <div class="p-4 md:p-6 rounded-3xl md:border select-none border-slate-200 dark:border-slate-800 shadow-2xl shadow-gray-300 dark:shadow-none">
         <div class="flex flex-col gap-6">
           <div use:droppable class="flex flex-col gap-2 touch-none">
             <SortableProvider ids={store.session}>
@@ -715,7 +714,7 @@ function Session() {
             </SortableProvider>
 
             <Show when={store.session.length === 0}>
-              <div class="flex justify-between items-center px-3 py-2 opacity-40 rounded-md bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 border-slate-200">
+              <div class="flex justify-between items-center px-3 h-12 opacity-40 rounded-md bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 border-slate-200">
                 <Input readOnly value="Drop your tasks here!" />
               </div>
             </Show>
@@ -724,7 +723,7 @@ function Session() {
           <div class="flex justify-end">
             <div>
               <button
-                class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-3xl text-sm px-4 py-2 focus:outline-none dark:focus:ring-blue-800 disabled:bg-blue-600 disabled:opacity-40 transition-all"
+                class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-3xl text-sm px-4 py-2 touch:px-7 touch:py-3 focus:outline-none dark:focus:ring-blue-800 disabled:bg-blue-600 disabled:opacity-40 transition-all"
                 disabled={store.session.length === 0}
                 onClick={() => {
                   actions.startSession();
@@ -782,7 +781,7 @@ function Backlog() {
         <div class="flex justify-center mt-4">
           <button
             aria-label="Create task"
-            class="gap-2 rounded-full p-2 transition-colors text-blue-600 bg-blue-50 hover:bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30 dark:hover:bg-blue-900/50"
+            class="gap-2 rounded-full p-2 transition-colors text-blue-600 bg-blue-50 hover:bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 touch:p-4"
             onClick={() => {
               actions.addTask();
             }}
@@ -791,7 +790,7 @@ function Backlog() {
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
               fill="currentColor"
-              class="w-5 h-5"
+              class="w-5 h-5 touch:w-6 touch:h-6"
             >
               <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
             </svg>
@@ -803,7 +802,7 @@ function Backlog() {
         <div
           class="flex flex-col justify-center items-center gap-8"
           classList={{
-            "opacity-20 hover:opacity-100 transition-opacity duration-500":
+            "opacity-20 touch:opacity-100 hover:opacity-100 transition-opacity duration-500":
               store.session.length !== 0,
           }}
         >
@@ -824,7 +823,7 @@ function Backlog() {
           <div class="flex flex-col gap-4 text-lg font-medium items-center">
             <span class="select-none">Your backlog is empty!</span>
             <button
-              class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-3xl text-sm px-4 py-2 focus:outline-none dark:focus:ring-blue-800 transition-colors"
+              class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-3xl text-sm px-4 py-2 touch:px-7 touch:py-3 focus:outline-none dark:focus:ring-blue-800 transition-colors"
               onClick={() => {
                 actions.addTask();
               }}
@@ -845,7 +844,7 @@ function Task(props: { type: "session" | "backlog"; task: Task }) {
   return (
     <div
       use:sortable
-      class="group flex justify-between items-center px-3 py-2 rounded-md bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 border-slate-200"
+      class="group flex justify-between items-center px-3 h-12 rounded-md bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 border-slate-200"
       classList={{
         "opacity-30": sortable.isActiveDraggable,
       }}
@@ -881,7 +880,7 @@ function Task(props: { type: "session" | "backlog"; task: Task }) {
               onClick={() => {
                 actions.removeTask(props.task.id);
               }}
-              class="h-6 text-slate-400 dark:text-slate-500 hover:text-red-700 hover:bg-red-100 hover:dark:bg-red-900/25 rounded w-6 flex justify-center items-center"
+              class="h-6 touch:h-8 touch:w-8 text-slate-400 dark:text-slate-500 hover:text-red-700 hover:bg-red-100 hover:dark:bg-red-900/25 rounded w-6 flex justify-center items-center"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -911,7 +910,7 @@ function Task(props: { type: "session" | "backlog"; task: Task }) {
                   +e.currentTarget.value
                 );
               }}
-              class="appearance-none px-2 py-1 text-xs text-slate-500 dark:text-slate-400 text-right font-extralight rounded bg-transparent border border-slate-200 hover:border-slate-300 dark:border-slate-700 hover:dark:border-slate-600 cursor-pointer"
+              class="appearance-none px-2 py-1 touch:py-2 text-xs text-slate-500 dark:text-slate-400 text-right font-extralight rounded bg-transparent border border-slate-200 hover:border-slate-300 dark:border-slate-700 hover:dark:border-slate-600 cursor-pointer"
             >
               <option value={5}>5 m</option>
               <option value={10}>10 m</option>
@@ -940,7 +939,7 @@ function Input(
   return (
     <input
       {...props}
-      class="mr-4 mt-[1px] bg-transparent w-full border-b border-transparent outline-none focus:border-slate-300 focus:dark:border-slate-600 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors"
+      class="mr-4 mt-[1px] rounded-none bg-transparent w-full border-b border-transparent outline-none focus:border-slate-300 focus:dark:border-slate-600 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors"
     />
   );
 }
