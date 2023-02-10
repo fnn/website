@@ -1,0 +1,12 @@
+---
+import App from "@components/Focus";
+import Layout from "@layouts/Layout.astro";
+
+export const prerender = true;
+---
+
+<Layout title="Fynn - Focus">
+  <main class="mx-auto w-full max-w-lg">
+    <App client:only />
+  </main>
+</Layout>
