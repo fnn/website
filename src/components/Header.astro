@@ -1,0 +1,17 @@
+---
+type Props = {
+  title: string;
+};
+
+const props = Astro.props;
+---
+
+<header class="container flex gap-2 mx-auto p-4">
+  <a
+    href="/"
+    class="opacity-50 hover:opacity-80 hover:text-blue-600 transition-all"
+    >Fynn</a
+  >
+  <span>·</span>
+  <span class="opacity-80">{props.title}</span>
+</header>
