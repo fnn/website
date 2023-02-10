@@ -707,7 +707,7 @@ function Session() {
 
       <div class="p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl shadow-gray-300 dark:shadow-none">
         <div class="flex flex-col gap-6">
-          <div use:droppable class="flex flex-col gap-2">
+          <div use:droppable class="flex flex-col gap-2 touch-none">
             <SortableProvider ids={store.session}>
               <For each={tasks()}>
                 {(task) => <Task type="session" task={store.tasks[task.id]} />}
@@ -769,7 +769,7 @@ function Backlog() {
       </div>
 
       <div>
-        <div use:droppable class="flex flex-col gap-2 px-6 ">
+        <div use:droppable class="flex flex-col gap-2 px-6 touch-none">
           <SortableProvider ids={store.backlog}>
             <For each={tasks()}>
               {(task) => <Task type="backlog" task={task} />}
@@ -874,7 +874,7 @@ function Task(props: { type: "session" | "backlog"; task: Task }) {
       />
 
       <div class="flex gap-2">
-        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div class="flex items-center gap-1 lg:opacity-0 group-hover:opacity-100 transition-opacity">
           <Show when={props.type === "backlog"}>
             <button
               aria-label="Delete task"
