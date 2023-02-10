@@ -83,6 +83,10 @@ let makeStoreContext = () => {
           setStore("tasks", id, { id, title: "", minutes: 20 });
           setStore("backlog", (ids) => [...ids, id]);
         });
+        setTimeout(() => {
+          let inputs = document.getElementsByTagName("input");
+          inputs[inputs.length - 1].focus();
+        });
       },
       removeTask(id: number) {
         let index = store.backlog.indexOf(id);
@@ -768,7 +772,7 @@ function Backlog() {
         <div use:droppable class="flex flex-col gap-2 px-6 ">
           <SortableProvider ids={store.backlog}>
             <For each={tasks()}>
-              {(task) => <Task type="backlog" task={store.tasks[task.id]} />}
+              {(task) => <Task type="backlog" task={task} />}
             </For>
           </SortableProvider>
         </div>
