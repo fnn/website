@@ -1,0 +1,54 @@
+---
+---
+
+<div class="gradient-1"></div>
+<div class="gradient-2"></div>
+
+<style>
+  .gradient-1 {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    z-index: -1;
+    width: 700px;
+    height: 1000px;
+    transform: translate(-38%, -30%) rotate(32deg);
+    background-image: radial-gradient(
+      farthest-side,
+      var(--blue-4),
+      transparent
+    );
+  }
+  .gradient-2 {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    z-index: -1;
+    width: 500px;
+    height: 700px;
+    filter: hue-rotate(8deg);
+    transform: translate(-73%, 5%) rotate(-28deg);
+    background-image: radial-gradient(
+      farthest-side,
+      var(--blue-3),
+      transparent
+    );
+  }
+  @media (prefers-color-scheme: dark) {
+    .gradient-1 {
+      background-image: radial-gradient(
+        farthest-side,
+        var(--blue-2),
+        transparent
+      );
+    }
+    .gradient-2 {
+      filter: hue-rotate(50deg);
+      background-image: radial-gradient(
+        farthest-side,
+        var(--blue-1),
+        transparent
+      );
+    }
+  }
+</style>

@@ -3,6 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@ds/*": ["src/ds/*"],
       "@components/*": ["src/components/*"],
       "@layouts/*": ["src/layouts/*"]
     },

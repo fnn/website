@@ -1,3 +1,4 @@
+import Button from "@ds/Button";
 import {
   closestCenter,
   CollisionDetector,
@@ -14,13 +15,16 @@ import {
 } from "@thisbeyond/solid-dnd";
 import {
   batch,
+  ComponentProps,
   createContext,
   createSignal,
   For,
   JSX,
   JSXElement,
   onCleanup,
+  onMount,
   Show,
+  splitProps,
   useContext,
 } from "solid-js";
 import { createLocalStore } from "src/utils/createLocalStore";
@@ -89,12 +93,17 @@ let makeStoreContext = () => {
         });
       },
       removeTask(id: number) {
-        let index = store.backlog.indexOf(id);
+        function removeIndex(ids: Array<number>, index: number) {
+          return [...ids.slice(0, index), ...ids.slice(index + 1)];
+        }
         batch(() => {
-          setStore("backlog", (tasks) => [
-            ...tasks.slice(0, index),
-            ...tasks.slice(index + 1),
-          ]);
+          let index = store.backlog.indexOf(id);
+          if (index >= 0) {
+            setStore("backlog", (ids) => removeIndex(ids, index));
+          } else {
+            index = store.session.indexOf(id);
+            setStore("session", (ids) => removeIndex(ids, index));
+          }
           setStore("tasks", (tasks) => {
             delete tasks[id];
             return tasks;
@@ -103,6 +112,18 @@ let makeStoreContext = () => {
       },
       modifyTask(id: number, prop: keyof Task, value: any) {
         setStore("tasks", id, prop, value);
+      },
+      switchTask(id: number) {
+        batch(() => {
+          let isBacklog = store.backlog.includes(id);
+          setStore(isBacklog ? "backlog" : "session", (tasks) =>
+            tasks.filter((taskId) => taskId !== id)
+          );
+          setStore(isBacklog ? "session" : "backlog", (tasks) => [
+            ...tasks,
+            id,
+          ]);
+        });
       },
       startSession() {
         setStore("activeSession", { start: Date.now(), status: "running" });
@@ -163,20 +184,20 @@ function SummaryView() {
 
   return (
     <Show when={store.activeSession?.status === "finished"}>
-      <div class="flex flex-col gap-12 p-4 md:p-6 rounded-3xl md:border select-none border-slate-200 dark:border-slate-800 shadow-2xl shadow-gray-300 dark:shadow-none">
+      <div class="flex flex-col gap-12 p-4 md:p-8 md:rounded-3xl md:shadow-1 md:bg-[var(--surface-1)]">
         <div>
           <div class="mb-2 text-3xl font-medium">Session finished</div>
-          <div class="text-slate-500 dark:text-slate-400">
+          <div class="text-gray-12">
             You have estimated that you need{" "}
-            <span class="font-semibold text-blue-600 dark:text-blue-300">
+            <span class="font-semibold text-blue-a11">
               {userEstimation()} min
             </span>{" "}
             for your tasks and you actually needed{" "}
             <span
               class="font-semibold"
               classList={{
-                "text-green-500": userEstimation() > actualTime(),
-                "text-red-500": userEstimation() + 10 < actualTime(),
+                "text-green-a11": userEstimation() > actualTime(),
+                "text-red-a11": userEstimation() + 10 < actualTime(),
               }}
             >
               {actualTime()} min
@@ -187,7 +208,7 @@ function SummaryView() {
 
         <div class="flex justify-between items-center">
           <div>
-            <div class="mb-3 text-sm font-extralight text-slate-500 dark:text-slate-400 dark:opacity-80 select-none">
+            <div class="mb-3 text-sm font-extralight text-gray-a11 select-none">
               START
             </div>
             <div class="text-4xl md:text-5xl font-medium">
@@ -196,7 +217,7 @@ function SummaryView() {
                 .substring(11, 16)}
             </div>
           </div>
-          <div class="flex gap-1 items-center mt-7 text-slate-500 dark:text-slate-400 dark:opacity-80">
+          <div class="flex gap-1 items-center mt-7 text-gray-a11">
             <div>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -236,7 +257,7 @@ function SummaryView() {
             </div>
           </div>
           <div>
-            <div class="mb-3 text-sm font-extralight text-slate-500 dark:text-slate-400 dark:opacity-80 select-none">
+            <div class="mb-3 text-sm font-extralight text-gray-a11 select-none">
               END
             </div>
             <div class="text-4xl md:text-5xl font-medium">
@@ -249,34 +270,23 @@ function SummaryView() {
 
         <Show when={finishedTasks().length !== 0}>
           <div class="flex flex-col gap-2">
-            <h2 class="text-sm font-extralight text-slate-500 dark:text-slate-400 dark:opacity-80 select-none">
+            <h2 class="text-sm font-extralight text-gray-a11 select-none">
               COMPLETED
             </h2>
             <For each={finishedTasks()}>
               {(task) => (
-                <div class="flex justify-between items-center px-4 h-12 transition-opacity opacity-100 rounded-md bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 border-slate-200 select-none">
-                  <div class="flex gap-3 items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width={1.5}
-                      stroke="currentColor"
-                      class="w-6 h-6 transition-colors text-green-600 dark:text-green-300"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-
+                <TaskPanel>
+                  <div class="flex items-center gap-3">
+                    <CheckMark checked />
                     <div>{task.title}</div>
                   </div>
-                  <div class="px-2 py-1 text-xs text-slate-500 dark:text-slate-400 text-right font-extralight rounded bg-transparent border border-slate-200 dark:border-slate-700 select-none">
+                  <span
+                    aria-label={`Estimated time for task "${task.title}"`}
+                    class="text-sm text-right font-extralight bg-transparent select-none"
+                  >
                     {task.minutes} m
-                  </div>
-                </div>
+                  </span>
+                </TaskPanel>
               )}
             </For>
           </div>
@@ -284,34 +294,23 @@ function SummaryView() {
 
         <Show when={unfinishedTasks().length !== 0}>
           <div class="flex flex-col gap-2">
-            <h2 class="text-sm font-extralight text-slate-500 dark:text-slate-400 dark:opacity-80 select-none">
+            <h2 class="text-sm font-extralight text-gray-a11 select-none">
               NOT COMPLETED
             </h2>
             <For each={unfinishedTasks()}>
               {(task) => (
-                <div class="flex justify-between items-center px-4 py-2 transition-opacity opacity-100 rounded-md bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 border-slate-200 select-none">
-                  <div class="flex gap-3 items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width={1.5}
-                      stroke="currentColor"
-                      class="w-6 h-6 transition-colors text-slate-400"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-
+                <TaskPanel>
+                  <div class="flex items-center gap-3">
+                    <CheckMark checked={false} />
                     <div>{task.title}</div>
                   </div>
-                  <div class="px-2 py-1 text-xs text-slate-500 dark:text-slate-400 text-right font-extralight rounded bg-transparent border border-slate-200 dark:border-slate-700 select-none">
+                  <span
+                    aria-label={`Estimated time for task "${task.title}"`}
+                    class="text-sm text-right font-extralight rounded bg-transparent select-none"
+                  >
                     {task.minutes} m
-                  </div>
-                </div>
+                  </span>
+                </TaskPanel>
               )}
             </For>
           </div>
@@ -319,14 +318,13 @@ function SummaryView() {
 
         <div class="flex justify-end">
           <div>
-            <button
-              class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-3xl text-sm px-4 py-2 touch:px-7 touch:py-3 focus:outline-none dark:focus:ring-blue-800 disabled:bg-blue-600 disabled:opacity-40 transition-all"
+            <Button
               onClick={() => {
                 actions.closeSession();
               }}
             >
               Close Session
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -350,62 +348,57 @@ function SessionView() {
   return (
     <Show when={store.activeSession?.status === "running"}>
       <Counter />
-      <div class="flex flex-col gap-24 p-4 md:p-6 rounded-3xl border border-transparent">
+      <div class="flex flex-col gap-12 p-4 md:p-8 md:rounded-3xl md:shadow-1 md:bg-[var(--surface-1)]">
         {/* Active Task */}
         <div>
-          <h2 class="mb-3 text-sm font-extralight text-slate-500 dark:text-slate-400 dark:opacity-80 select-none">
+          <h2 class="mb-3 text-sm font-extralight text-gray-a11 select-none">
             WORKING ON
           </h2>
-          <div class="md:scale-[1.265] flex justify-between items-center px-3 h-12 transition-opacity font-medium rounded-md md:rounded-xl shadow-lg cursor-default bg-gradient-to-t from-blue-700 to-blue-500 dark:from-blue-900 dark:to-blue-600 text-blue-100">
+          <TaskPanel>
             <div class="flex items-center gap-3">
-              <button
-                onClick={() => {
-                  batch(() => {
-                    if (unfinishedTasks().length === 0) {
-                      actions.endSession();
-                    }
-
-                    actions.modifyTask(
-                      activeTask()!.id,
-                      "done",
-                      !activeTask()!.done
-                    );
-                  });
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width={1.5}
-                  stroke="currentColor"
-                  class="w-6 h-6 transition-colors text-blue-100 hover:animate-pulse"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </button>
+              <CheckMark checked={false} />
               <div>{activeTask()?.title}</div>
             </div>
-            <div class="px-2 py-1 text-sm text-blue-100 text-right font-extralight rounded bg-transparent select-none">
+            <span
+              aria-label={`Estimated time for task "${activeTask()!.title}"`}
+              class="text-sm text-right font-extralight rounded bg-transparent select-none"
+            >
               {activeTask()!.minutes} m
-            </div>
+            </span>
+          </TaskPanel>
+          <div class="mt-4 flex justify-end">
+            <Button
+              color="blue"
+              onClick={() => {
+                batch(() => {
+                  if (unfinishedTasks().length === 0) {
+                    actions.endSession();
+                  }
+
+                  actions.modifyTask(
+                    activeTask()!.id,
+                    "done",
+                    !activeTask()!.done
+                  );
+                });
+              }}
+            >
+              Task Done
+            </Button>
           </div>
         </div>
 
         {/* Unfinished Tasks */}
         <Show when={unfinishedTasks().length !== 0}>
           <div class="flex flex-col gap-2">
-            <h2 class="text-sm font-extralight text-slate-500 dark:text-slate-400 dark:opacity-80 select-none">
+            <h2 class="text-sm font-extralight text-gray-a11 select-none">
               STILL TO DO
             </h2>
             <For each={unfinishedTasks()}>
               {(task) => (
-                <button
-                  class="flex justify-between items-center px-3 h-12 transition-opacity opacity-80 hover:opacity-100 rounded-md bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 border-slate-200 cursor-pointer select-none"
+                <TaskPanel
+                  role="button"
+                  class="hover:brightness-95 dark:hover:brightness-110 transition"
                   onClick={() => {
                     actions.setStore("session", [
                       task.id,
@@ -414,31 +407,18 @@ function SessionView() {
                   }}
                 >
                   <div class="flex items-center gap-3">
-                    {/* <div class="w-6" /> */}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      stroke-width={1.5}
-                      fill="currentColor"
-                      class="w-6 h-6 opacity-40"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
-                      />
-                    </svg>
-
+                    <CheckMark checked={false} />
                     <div>{task.title}</div>
                   </div>
-                  <Show when={!task.done}>
-                    <div class="px-2 py-1 text-xs text-slate-500 dark:text-slate-400 text-right font-extralight rounded bg-transparent border border-slate-200 dark:border-slate-700 select-none">
-                      {task.minutes} m
-                    </div>
-                  </Show>
-                </button>
+                  <span
+                    aria-label={`Estimated time for task "${
+                      activeTask()!.title
+                    }"`}
+                    class="text-sm text-right font-extralight rounded bg-transparent select-none"
+                  >
+                    {task.minutes} m
+                  </span>
+                </TaskPanel>
               )}
             </For>
           </div>
@@ -447,46 +427,25 @@ function SessionView() {
         {/* Finished Tasks */}
         <Show when={finishedTasks().length !== 0}>
           <div class="flex flex-col gap-2">
-            <h2 class="text-sm font-extralight text-slate-500 dark:text-slate-400 dark:opacity-80 select-none">
+            <h2 class="text-sm font-extralight text-gray-a11 select-none">
               DONE
             </h2>
             <For each={finishedTasks()}>
               {(task) => (
-                <div class="flex justify-between items-center px-3 h-12 opacity-50 dark:opacity-30 rounded-md border border-slate-200 dark:border-slate-700 cursor-default">
+                <div
+                  class={`group flex justify-between items-center pl-3 pr-5 h-12 rounded-md shadow-1`}
+                >
                   <div class="flex items-center gap-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width={1.5}
-                      stroke="currentColor"
-                      class="w-6 h-6 transition-colors text-green-600 dark:text-green-300"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <div class="line-through">{task.title}</div>
+                    <CheckMark checked={true} />
+                    <div>{task.title}</div>
                   </div>
-                  <Show when={!task.done}>
-                    <div class="px-2 py-1 text-xs text-slate-500 dark:text-slate-400 text-right font-extralight rounded bg-transparent border border-slate-200 dark:border-slate-700 select-none">
-                      {task.minutes} m
-                    </div>
-                  </Show>
                 </div>
               )}
             </For>
           </div>
         </Show>
         <div class="flex justify-end">
-          <button
-            class="text-slate-800 dark:text-white border border-slate-200 hover:bg-slate-100 dark:border-slate-800 dark:hover:border-slate-700 dark:hover:bg-slate-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-3xl text-sm px-4 py-2 touch:px-7 touch:py-3  focus:outline-none dark:focus:ring-blue-800 disabled:bg-blue-600 disabled:opacity-40 transition-all"
-            onClick={() => actions.endSession()}
-          >
-            End Session
-          </button>
+          <Button onClick={() => actions.endSession()}>End Session</Button>
         </div>
       </div>
     </Show>
@@ -514,7 +473,7 @@ function Counter() {
 
   return (
     <div
-      class="flex justify-center my-6 md:my-12 text-slate-200 dark:text-slate-800 text-7xl font-medium select-none hover:opacity-100 transition-opacity duration-[6s] tabular-nums drop-shadow-xl"
+      class="flex justify-center my-6 md:my-12 text-gray-a11 text-7xl font-medium select-none hover:opacity-100 transition-opacity duration-[6s] tabular-nums"
       classList={{
         "opacity-0 touch:opacity-100": hide(),
       }}
@@ -525,7 +484,21 @@ function Counter() {
 }
 
 function BoardView() {
-  let [store] = useStore();
+  let [store, actions] = useStore();
+
+  function keyHandler(event: KeyboardEvent) {
+    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+      actions.addTask();
+    }
+  }
+
+  onMount(() => {
+    window.addEventListener("keydown", keyHandler);
+  });
+
+  onCleanup(() => {
+    window.removeEventListener("keydown", keyHandler);
+  });
 
   return (
     <Show when={!store.activeSession}>
@@ -659,13 +632,15 @@ function DragAndDrop() {
           }
 
           return (
-            <div class="flex justify-between items-center px-3 h-12 rounded-md bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 border-slate-200 shadow-xl scale-105 -rotate-1 origin-left">
-              <div class="w-4 mr-2" />
-              <Input
-                readOnly
-                value={store.tasks[draggable.id].title}
-                placeholder="New Task"
-              />
+            <div class="rounded-md shadow-xl shadow-black/30 scale-105 origin-left">
+              <TaskPanel>
+                <DragHandlerIcon />
+                <Input
+                  readOnly
+                  value={store.tasks[draggable.id].title}
+                  placeholder="New Task"
+                />
+              </TaskPanel>
             </div>
           );
         }}
@@ -682,55 +657,41 @@ function Session() {
 
   return (
     <section class="flex flex-col gap-2">
-      <div class="hidden items-center gap-2 dark:text-slate-400 text-slate-500">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          class="w-4 h-4"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M4.606 12.97a.75.75 0 01-.134 1.051 2.494 2.494 0 00-.93 2.437 2.494 2.494 0 002.437-.93.75.75 0 111.186.918 3.995 3.995 0 01-4.482 1.332.75.75 0 01-.461-.461 3.994 3.994 0 011.332-4.482.75.75 0 011.052.134z"
-            clip-rule="evenodd"
-          ></path>
-          <path
-            fill-rule="evenodd"
-            d="M5.752 12A13.07 13.07 0 008 14.248v4.002c0 .414.336.75.75.75a5 5 0 004.797-6.414 12.984 12.984 0 005.45-10.848.75.75 0 00-.735-.735 12.984 12.984 0 00-10.849 5.45A5 5 0 001 11.25c.001.414.337.75.751.75h4.002zM13 9a2 2 0 100-4 2 2 0 000 4z"
-            clip-rule="evenodd"
-          ></path>
-        </svg>
-
-        <h1 class="font-light text-sm">Session</h1>
-      </div>
-
-      <div class="p-4 md:p-6 rounded-3xl md:border select-none border-slate-200 dark:border-slate-800 shadow-2xl shadow-gray-300 dark:shadow-none">
+      <div class="p-4 md:p-8 md:rounded-3xl border-y border-gray-a5 md:border-none md:shadow-1 bg-[var(--surface-1)]">
         <div class="flex flex-col gap-6">
           <div use:droppable class="flex flex-col gap-2 touch-none">
             <SortableProvider ids={store.session}>
-              <For each={tasks()}>
-                {(task) => <Task type="session" task={store.tasks[task.id]} />}
-              </For>
+              <For each={tasks()}>{(task) => <Task task={task} />}</For>
             </SortableProvider>
 
             <Show when={store.session.length === 0}>
-              <div class="flex justify-between items-center px-3 h-12 opacity-40 rounded-md bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 border-slate-200">
-                <Input readOnly value="Drop your tasks here!" />
+              <div class="opacity-50">
+                <TaskPanel>
+                  <Input readOnly value="Drop your tasks here!" />
+                </TaskPanel>
               </div>
             </Show>
           </div>
 
-          <div class="flex justify-end">
+          <div class="flex justify-end items-center gap-4">
+            <Show when={totalTime() > 0}>
+              <span
+                aria-label="Session lengths"
+                class="font-light text-gray-a11 text-sm"
+              >
+                ~{totalTime()} min
+              </span>
+            </Show>
             <div>
-              <button
-                class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-3xl text-sm px-4 py-2 touch:px-7 touch:py-3 focus:outline-none dark:focus:ring-blue-800 disabled:bg-blue-600 disabled:opacity-40 transition-all"
-                disabled={store.session.length === 0}
+              <Button
+                color="blue"
+                state={store.session.length === 0 ? "disabled" : "normal"}
                 onClick={() => {
                   actions.startSession();
                 }}
               >
-                Start Session {totalTime() !== 0 ? `(${totalTime()} min)` : ""}
-              </button>
+                Start Session
+              </Button>
             </div>
           </div>
         </div>
@@ -747,45 +708,41 @@ function Backlog() {
 
   return (
     <section class="flex flex-col gap-2">
-      <div class="flex justify-between">
-        <div class="hidden items-center gap-2 dark:text-slate-400 text-slate-500">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            class="w-4 h-4"
-          >
-            <path d="M2 3a1 1 0 00-1 1v1a1 1 0 001 1h16a1 1 0 001-1V4a1 1 0 00-1-1H2z"></path>
-            <path
-              fill-rule="evenodd"
-              d="M2 7.5h16l-.811 7.71a2 2 0 01-1.99 1.79H4.802a2 2 0 01-1.99-1.79L2 7.5zM7 11a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-
-          <h1 class="font-light text-sm">Backlog</h1>
-        </div>
-      </div>
-
       <div>
-        <div use:droppable class="flex flex-col gap-2 px-6 touch-none">
+        <div use:droppable class="flex flex-col gap-2 px-4 md:px-8 touch-none">
           <SortableProvider ids={store.backlog}>
-            <For each={tasks()}>
-              {(task) => <Task type="backlog" task={task} />}
-            </For>
+            <For each={tasks()}>{(task) => <Task task={task} />}</For>
           </SortableProvider>
         </div>
       </div>
 
-      <Show when={store.backlog.length !== 0}>
-        <div class="flex justify-center mt-4">
-          <button
-            aria-label="Create task"
-            class="gap-2 rounded-full p-2 transition-colors text-blue-600 bg-blue-50 hover:bg-blue-100 dark:text-blue-400 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 touch:p-4"
-            onClick={() => {
-              actions.addTask();
-            }}
-          >
+      <div class="flex flex-col md:flex-row justify-between gap-8 mt-4 px-4 md:px-8">
+        <Show when={store.backlog.length === 0} fallback={<div />}>
+          <div class="flex items-center gap-3 text-gray-a11">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width={1.5}
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z"
+              />
+            </svg>
+            <span>Your backlog is empty!</span>
+          </div>
+        </Show>
+        <Button
+          aria-label="Create task"
+          onClick={() => {
+            actions.addTask();
+          }}
+        >
+          <div class="flex items-center gap-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
@@ -794,111 +751,69 @@ function Backlog() {
             >
               <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
             </svg>
-          </button>
-        </div>
-      </Show>
-
-      <Show when={store.backlog.length === 0}>
-        <div
-          class="flex flex-col justify-center items-center gap-8"
-          classList={{
-            "opacity-20 touch:opacity-100 hover:opacity-100 transition-opacity duration-500":
-              store.session.length !== 0,
-          }}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width={1.5}
-            stroke="currentColor"
-            class="w-24 h-24 text-blue-400 opacity-40 dark:opacity-20"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z"
-            />
-          </svg>
-          <div class="flex flex-col gap-4 text-lg font-medium items-center">
-            <span class="select-none">Your backlog is empty!</span>
-            <button
-              class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-3xl text-sm px-4 py-2 touch:px-7 touch:py-3 focus:outline-none dark:focus:ring-blue-800 transition-colors"
-              onClick={() => {
-                actions.addTask();
-              }}
-            >
-              Create Task
-            </button>
+            Create Task
           </div>
-        </div>
-      </Show>
+        </Button>
+      </div>
     </section>
   );
 }
 
-function Task(props: { type: "session" | "backlog"; task: Task }) {
-  let [, actions] = useStore();
+function TaskPanel(props: ComponentProps<"div">) {
+  let [local, others] = splitProps(props, ["class"]);
+
+  return (
+    <div
+      {...others}
+      class={`group flex justify-between items-center pl-3 pr-5 h-12 rounded-md bg-gradient-to-t from-gray-4 to-gray-2 dark:from-gray-5 dark:to-gray-6 shadow-1 ${local.class}`}
+    />
+  );
+}
+
+function Task(props: { task: Task }) {
   let sortable = createSortable(props.task.id);
+  let [, actions] = useStore();
 
   return (
     <div
       use:sortable
-      class="group flex justify-between items-center px-3 h-12 rounded-md bg-slate-50 dark:bg-slate-800 border dark:border-slate-700 border-slate-200"
       classList={{
-        "opacity-30": sortable.isActiveDraggable,
+        "opacity-0": sortable.isActiveDraggable,
       }}
     >
-      <div class="cursor-move mr-2 text-slate-500">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          class="w-6 h-4"
+      <TaskPanel>
+        <div
+          class="cursor-move mr-2"
+          onMouseDown={(e) => e.preventDefault()}
+          onDblClick={() => {
+            actions.switchTask(props.task.id);
+          }}
         >
-          <path
-            fill-rule="evenodd"
-            d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </div>
+          <DragHandlerIcon />
+        </div>
 
-      <Input
-        value={props.task.title}
-        placeholder="New Task"
-        onChange={(e) => {
-          actions.modifyTask(props.task.id, "title", e.currentTarget.value);
-        }}
-      />
+        <Input
+          value={props.task.title}
+          placeholder="New Task"
+          onChange={(e) => {
+            actions.modifyTask(props.task.id, "title", e.currentTarget.value);
+          }}
+        />
 
-      <div class="flex gap-2">
-        <div class="flex items-center gap-1 lg:opacity-0 group-hover:opacity-100 transition-opacity">
-          <Show when={props.type === "backlog"}>
-            <button
+        <div class="flex gap-2">
+          <div class="hidden items-center gap-1 touch:flex group-hover:flex">
+            <Button
               aria-label="Delete task"
+              color="red"
+              size="1"
               onClick={() => {
                 actions.removeTask(props.task.id);
               }}
-              class="h-6 touch:h-8 touch:w-8 text-slate-400 dark:text-slate-500 hover:text-red-700 hover:bg-red-100 hover:dark:bg-red-900/25 rounded w-6 flex justify-center items-center"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="w-4 h-4"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </button>
-          </Show>
-        </div>
+              <TrashIcon />
+            </Button>
+          </div>
 
-        <Show when={props.type === "session"}>
           <div>
             <select
               aria-label="Task duration (minutes)"
@@ -910,7 +825,7 @@ function Task(props: { type: "session" | "backlog"; task: Task }) {
                   +e.currentTarget.value
                 );
               }}
-              class="appearance-none px-2 py-1 touch:py-2 text-xs text-slate-500 dark:text-slate-400 text-right font-extralight rounded bg-transparent border border-slate-200 hover:border-slate-300 dark:border-slate-700 hover:dark:border-slate-600 cursor-pointer"
+              class="appearance-none px-2 h-7 text-xs text-right font-extralight rounded-lg cursor-pointer bg-gray-a2 hover:bg-gray-a3 text-gray-12 shadow-input shadow-gray-a7 hover:shadow-gray-a8 active:shadow-gray-a9 focus-visible:shadow-input-focus focus-visible:shadow-gray-a8 outline-none"
             >
               <option value={5}>5 m</option>
               <option value={10}>10 m</option>
@@ -926,8 +841,8 @@ function Task(props: { type: "session" | "backlog"; task: Task }) {
               <option value={60}>60 m</option>
             </select>
           </div>
-        </Show>
-      </div>
+        </div>
+      </TaskPanel>
     </div>
   );
 }
@@ -939,7 +854,64 @@ function Input(
   return (
     <input
       {...props}
-      class="mr-4 mt-[1px] rounded-none bg-transparent w-full border-b border-transparent outline-none focus:border-slate-300 focus:dark:border-slate-600 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-colors"
+      class="mr-4 mt-[1px] rounded-none bg-transparent w-full border-b border-transparent outline-none hover:border-gray-a5 focus:border-gray-a7 placeholder:text-gray-a11 transition-colors"
     />
+  );
+}
+
+function CheckMark(props: { checked: boolean }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke-width={1.5}
+      stroke="currentColor"
+      class="w-6 h-6 text-gray-a11"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d={`${
+          props.checked ? "M9 12.75L11.25 15 15 9.75" : ""
+        }M21 12a9 9 0 11-18 0 9 9 0 0118 0z`}
+      />
+    </svg>
+  );
+}
+
+function DragHandlerIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      class="w-6 h-4"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z"
+        clip-rule="evenodd"
+      />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <div>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        class="w-4 h-4"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z"
+          clip-rule="evenodd"
+        />
+      </svg>
+    </div>
   );
 }

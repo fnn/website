@@ -1,66 +1,72 @@
 ---
+import { SEO } from "astro-seo";
+import Layout from "@layouts/Layout.astro";
+import FocusGradients from "@ds/gradients/FocusGradients.astro";
 import App from "@components/Focus";
 import Header from "@components/Header.astro";
 
 export const prerender = true;
 ---
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link
-      rel="apple-touch-icon"
-      sizes="57x57"
-      href="/apple-touch-icon-57x57.png"
-    />
-    <link
-      rel="apple-touch-icon"
-      sizes="72x72"
-      href="/apple-touch-icon-72x72.png"
-    />
-    <link
-      rel="apple-touch-icon"
-      sizes="76x76"
-      href="/apple-touch-icon-76x76.png"
-    />
-    <link
-      rel="apple-touch-icon"
-      sizes="114x114"
-      href="/apple-touch-icon-114x114.png"
-    />
-    <link
-      rel="apple-touch-icon"
-      sizes="120x120"
-      href="/apple-touch-icon-120x120.png"
-    />
-    <link
-      rel="apple-touch-icon"
-      sizes="144x144"
-      href="/apple-touch-icon-144x144.png"
-    />
-    <link
-      rel="apple-touch-icon"
-      sizes="152x152"
-      href="/apple-touch-icon-152x152.png"
-    />
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="/apple-touch-icon-180x180.png"
-    />
-    <title>Fynn · Focus</title>
-  </head>
+<Layout>
+  <Header title="Focus" />
 
-  <body class="text-slate-700 dark:bg-slate-900 dark:text-slate-200">
-    <Header title="Focus" />
-    <main class="mx-auto mb-24 w-full max-w-lg">
-      <App client:only />
-    </main>
-  </body>
-</html>
+  <main class="mx-auto mb-24 inset-0 w-full max-w-lg">
+    <App client:only />
+  </main>
+
+  <FocusGradients />
+
+  <SEO
+    slot="head"
+    title="Fynn · Focus"
+    description="Free tool to manage your focus time."
+    twitter={{ creator: "@fnnpth" }}
+    extend={{
+      link: [
+        { rel: "shortcut icon", type: "image/x-icon", href: "/favicon.ico" },
+        { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+        {
+          rel: "apple-touch-icon",
+          sizes: "57x57" as any,
+          href: "/apple-touch-icon-57x57.png",
+        },
+        {
+          rel: "apple-touch-icon",
+          sizes: "72x72" as any,
+          href: "/apple-touch-icon-72x72.png",
+        },
+        {
+          rel: "apple-touch-icon",
+          sizes: "76x76" as any,
+          href: "/apple-touch-icon-76x76.png",
+        },
+        {
+          rel: "apple-touch-icon",
+          sizes: "114x114" as any,
+          href: "/apple-touch-icon-114x114.png",
+        },
+        {
+          rel: "apple-touch-icon",
+          sizes: "120x120" as any,
+          href: "/apple-touch-icon-120x120.png",
+        },
+        {
+          rel: "apple-touch-icon",
+          sizes: "144x144" as any,
+          href: "/apple-touch-icon-144x144.png",
+        },
+        {
+          rel: "apple-touch-icon",
+          sizes: "152x152" as any,
+          href: "/apple-touch-icon-152x152.png",
+        },
+        {
+          rel: "apple-touch-icon",
+          sizes: "180x180" as any,
+          href: "/apple-touch-icon-180x180.png",
+        },
+      ],
+    }}
+  />
+</Layout>

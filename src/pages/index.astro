@@ -1,6 +1,7 @@
 ---
-import Link from "@components/Link.astro";
 import Layout from "@layouts/Layout.astro";
+import Gradients from "@ds/gradients/IndexGradients.astro";
+import Link from "@components/Link.astro";
 
 export const prerender = true;
 ---
@@ -9,21 +10,17 @@ export const prerender = true;
   <main class="container mx-auto my-28 px-4">
     <div class="flex flex-col gap-28">
       <section class="flex flex-col gap-4">
-        <h1 class="text-7xl font-medium text-slate-800 dark:text-slate-300">
-          Fynn
-        </h1>
-        <p class="text-2xl font-light text-slate-500">
+        <h1 class="text-7xl font-medium">Fynn</h1>
+        <p class="text-2xl font-light text-gray-a11">
           Web Developer from Berlin
         </p>
       </section>
 
-      <div class="flex flex-col gap-12">
-        <section class="flex flex-col gap-4">
-          <h2 class="text-2xl font-medium text-slate-800 dark:text-slate-300">
-            Tools
-          </h2>
+      <div class="flex flex-col gap-20">
+        <section class="flex flex-col gap-8">
+          <h2 class="text-2xl font-medium">Tools</h2>
 
-          <ul class="flex gap-4">
+          <ul class="flex gap-8">
             <li>
               <Link href="/focus">Focus</Link>
             </li>
@@ -33,12 +30,10 @@ export const prerender = true;
           </ul>
         </section>
 
-        <section class="flex flex-col gap-4">
-          <h2 class="text-2xl font-medium text-slate-800 dark:text-slate-300">
-            Links
-          </h2>
+        <section class="flex flex-col gap-8">
+          <h2 class="text-2xl font-medium">Links</h2>
 
-          <ul class="flex gap-4">
+          <ul class="flex gap-8">
             <li>
               <Link
                 href="https://www.polywork.com/fnn"
@@ -71,4 +66,6 @@ export const prerender = true;
       </div>
     </div>
   </main>
+
+  <Gradients />
 </Layout>

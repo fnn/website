@@ -1,9 +1,5 @@
 ---
-export interface Props {
-  title: string;
-}
-
-const { title } = Astro.props as Props;
+import "../styles.css";
 ---
 
 <!DOCTYPE html>
@@ -12,10 +8,34 @@ const { title } = Astro.props as Props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <title>{title}</title>
+    <slot name="head" />
   </head>
 
-  <body class="text-slate-700 dark:bg-slate-900 dark:text-slate-200">
+  <body class="text-gray-12">
     <slot />
   </body>
 </html>
+
+<script>
+  function setTheme() {
+    try {
+      let doc = document.documentElement;
+      let classList = doc.classList;
+      classList.remove("light-theme", "dark-theme");
+      let media = window.matchMedia("(prefers-color-scheme: dark)");
+      if (media.matches) {
+        doc.style.colorScheme = "dark";
+        classList.add("dark-theme");
+      } else {
+        doc.style.colorScheme = "light";
+        classList.add("light-theme");
+      }
+    } catch (e) {}
+  }
+
+  setTheme();
+
+  window
+    .matchMedia("(prefers-color-scheme: dark)")
+    .addEventListener("change", (event) => setTheme());
+</script>

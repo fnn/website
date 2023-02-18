@@ -9,5 +9,10 @@ import mdx from "@astrojs/mdx";
 export default defineConfig({
   output: "server",
   integrations: [solid(), tailwind(), mdx()],
-  adapter: cloudflare()
+  adapter: cloudflare(),
+  vite: {
+    ssr: {
+      noExternal: ["@kobalte/core"],
+    },
+  },
 });

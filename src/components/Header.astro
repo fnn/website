@@ -6,12 +6,12 @@ type Props = {
 const props = Astro.props;
 ---
 
-<header class="container flex gap-2 mx-auto p-4">
+<header class="container flex gap-2 mx-auto p-4 text-gray-12">
   <a
     href="/"
-    class="opacity-50 hover:opacity-80 hover:text-blue-600 transition-all"
+    class="text-gray-a11 hover:text-blue-a11 transition underline decoration-gray-a1 underline-offset-4 decoration-wavy hover:decoration-current"
     >Fynn</a
   >
   <span>·</span>
-  <span class="opacity-80">{props.title}</span>
+  <span>{props.title}</span>
 </header>
