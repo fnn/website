@@ -10,10 +10,10 @@
   },
   "prettier": {},
   "dependencies": {
-    "@astrojs/cloudflare": "^6.2.1",
     "@astrojs/mdx": "^0.18.1",
     "@astrojs/solid-js": "^2.1.0",
     "@astrojs/tailwind": "^3.1.1",
+    "@astrojs/vercel": "^3.2.1",
     "@kobalte/core": "^0.7.2",
     "@kobalte/tailwindcss": "^0.5.0",
     "@thisbeyond/solid-dnd": "^0.7.4",
