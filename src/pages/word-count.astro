@@ -2,6 +2,7 @@
 import Header from "@components/Header.astro";
 import WordCount from "@components/WordCount";
 import Layout from "@layouts/Layout.astro";
+import { SEO } from "astro-seo";
 
 export const prerender = true;
 ---
@@ -11,4 +12,11 @@ export const prerender = true;
   <main class="mb-12">
     <WordCount client:only />
   </main>
+
+  <SEO
+    slot="head"
+    title="Fynn · Word Count"
+    description="Free tool to count words and other metrics in text content."
+    twitter={{ creator: "@fnnpth" }}
+  />
 </Layout>
