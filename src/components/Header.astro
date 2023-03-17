@@ -1,6 +1,6 @@
 ---
 type Props = {
-  title: string;
+  title?: string;
 };
 
 const props = Astro.props;
@@ -12,6 +12,12 @@ const props = Astro.props;
     class="text-gray-a11 hover:text-blue-a11 transition underline decoration-gray-a1 underline-offset-4 decoration-wavy hover:decoration-current"
     >Fynn</a
   >
-  <span>·</span>
-  <span>{props.title}</span>
+  {
+    props.title && (
+      <>
+        <span>·</span>
+        <span>{props.title}</span>
+      </>
+    )
+  }
 </header>

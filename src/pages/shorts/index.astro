@@ -1,0 +1,49 @@
+---
+import Header from "@components/Header.astro";
+import Gradients from "@ds/gradients/IndexGradients.astro";
+import Link from "@ds/Link.astro";
+import Layout from "@layouts/Layout.astro";
+import { SEO } from "astro-seo";
+import { getCollection } from "astro:content";
+
+Astro.response.headers.set(
+  "Cache-Control",
+  "s-maxage=86400, stale-while-revalidate"
+);
+
+const shorts = await getCollection("shorts");
+---
+
+<Layout title="Fynn - Shorts">
+  <Header />
+
+  <main class="container mx-auto mt-16 px-4">
+    <header class="flex flex-col gap-4 mb-16">
+      <h1 class="text-7xl font-medium">Shorts</h1>
+    </header>
+
+    <ul class="flex flex-col gap-8">
+      {
+        shorts.map((short) => (
+          <li class="flex gap-4">
+            <time
+              class="text-gray-a11 font-light"
+              datetime={short.data.created}
+            >
+              {new Date(short.data.created).toLocaleDateString()}
+            </time>
+            <Link href={`/shorts/${short.slug}`}>{short.data.title}</Link>
+          </li>
+        ))
+      }
+    </ul>
+  </main>
+
+  <Gradients />
+
+  <SEO
+    slot="head"
+    title="Shorts | Fynn"
+    description="Fynn's Blog with short helpful articles for programming and other nerdy topics."
+  />
+</Layout>

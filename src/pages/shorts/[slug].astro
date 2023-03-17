@@ -1,0 +1,66 @@
+---
+import Header from "@components/Header.astro";
+import Gradients from "@ds/gradients/IndexGradients.astro";
+import Layout from "@layouts/Layout.astro";
+import { SEO } from "astro-seo";
+import { getEntryBySlug } from "astro:content";
+
+Astro.response.headers.set(
+  "Cache-Control",
+  "s-maxage=86400, stale-while-revalidate"
+);
+
+let { slug } = Astro.params;
+
+let entry = await getEntryBySlug("shorts", slug ?? "");
+if (!entry) {
+  return Astro.redirect("/404");
+}
+
+let { Content } = await entry.render();
+---
+
+<Layout>
+  <Header title="Shorts" />
+
+  <main class="container mx-auto mt-16 pb-52 px-4">
+    <article role="contentinfo">
+      <header class="flex flex-col gap-4 mb-16 max-w-4xl">
+        <h1 class="text-5xl font-medium">{entry.data.title}</h1>
+        <div class="text-gray-a11 flex gap-8 text-sm">
+          <div>
+            <span class="sr-only">Created:</span>
+            <time aria-label="Created" datetime={entry.data.created}>
+              {new Date(entry.data.created).toLocaleDateString()}
+            </time>
+          </div>
+          {
+            entry.data.updated && (
+              <div>
+                <span>Updated:</span>
+                <time datetime={entry.data.created}>
+                  {new Date(entry.data.created).toLocaleDateString()}
+                </time>
+              </div>
+            )
+          }
+        </div>
+      </header>
+
+      <div
+        class="prose prose-lg prose-hr:border-gray-a7 prose-headings:text-gray-12 prose-p:text-gray-12 prose-pre:border prose-pre:border-gray-a4 prose-pre:rounded-2xl prose-code:font-normal prose-code:text-gray-a11"
+      >
+        <Content />
+      </div>
+    </article>
+  </main>
+
+  <Gradients />
+
+  <SEO
+    slot="head"
+    title={`${entry.data.title} | Fynn`}
+    description={entry.data.description}
+    twitter={{ creator: "@fnnpth" }}
+  />
+</Layout>

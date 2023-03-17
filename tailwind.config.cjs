@@ -101,7 +101,10 @@ module.exports = {
       },
     },
   },
-  plugins: [require("@kobalte/tailwindcss")],
+  plugins: [
+    require("@kobalte/tailwindcss"),
+    require("@tailwindcss/typography"),
+  ],
   future: {
     hoverOnlyWhenSupported: true,
   },

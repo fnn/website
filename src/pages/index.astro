@@ -1,12 +1,22 @@
 ---
+import { getCollection } from "astro:content";
 import Layout from "@layouts/Layout.astro";
 import Gradients from "@ds/gradients/IndexGradients.astro";
 import Link from "@ds/Link.astro";
+import { SEO } from "astro-seo";
 
-export const prerender = true;
+Astro.response.headers.set(
+  "Cache-Control",
+  "s-maxage=86400, stale-while-revalidate"
+);
+
+const shorts = await getCollection("shorts");
+const sortedShorts = shorts.sort((a, b) =>
+  b.data.created.localeCompare(a.data.created)
+);
 ---
 
-<Layout title="Fynn">
+<Layout>
   <main class="container mx-auto my-28 px-4">
     <div class="flex flex-col gap-28">
       <section class="flex flex-col gap-4">
@@ -63,9 +73,53 @@ export const prerender = true;
             </li>
           </ul>
         </section>
+
+        <section class="flex flex-col gap-8">
+          <h2 class="text-2xl font-light text-gray-a11">Shorts</h2>
+
+          <ul class="flex flex-wrap gap-x-8 gap-y-4 max-w-4xl">
+            {
+              sortedShorts.slice(0, 6).map((short) => {
+                return (
+                  <li>
+                    <Link href={`/shorts/${short.slug}`}>
+                      {short.data.title}
+                    </Link>
+                  </li>
+                );
+              })
+            }
+            <li>
+              <a
+                class="text-gray-a11 hover:text-gray-12 flex items-center gap-2"
+                href="/shorts"
+                }
+              >
+                <span>More</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  class="w-5 h-5"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M2 10a.75.75 0 01.75-.75h12.59l-2.1-1.95a.75.75 0 111.02-1.1l3.5 3.25a.75.75 0 010 1.1l-3.5 3.25a.75.75 0 11-1.02-1.1l2.1-1.95H2.75A.75.75 0 012 10z"
+                    clip-rule="evenodd"></path>
+                </svg>
+              </a>
+            </li>
+          </ul>
+        </section>
       </div>
     </div>
   </main>
 
   <Gradients />
+
+  <SEO
+    slot="head"
+    title="Fynn - Web Developer from berlin"
+    description="Web Developer - JavaScript, TypeScript, React, Solid, Astro"
+  />
 </Layout>
