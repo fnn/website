@@ -11,10 +11,8 @@ Astro.response.headers.set(
   "s-maxage=86400, stale-while-revalidate"
 );
 
-const shorts = await getCollection("shorts");
-const sortedShorts = shorts.sort((a, b) =>
-  b.data.created.localeCompare(a.data.created)
-);
+let shorts = await getCollection("shorts");
+shorts.reverse();
 ---
 
 <Layout title="Fynn - Shorts">
@@ -27,7 +25,7 @@ const sortedShorts = shorts.sort((a, b) =>
 
     <ul class="flex flex-col gap-8">
       {
-        sortedShorts.map((short) => (
+        shorts.map((short) => (
           <li class="flex gap-4">
             <time
               class="text-gray-a11 font-light"
