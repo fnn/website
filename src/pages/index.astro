@@ -77,7 +77,7 @@ shorts.reverse();
 
           <ul class="flex flex-wrap gap-x-8 gap-y-4 max-w-4xl">
             {
-              shorts.slice(0, 6).map((short) => {
+              shorts.slice(0, 5).map((short) => {
                 return (
                   <li>
                     <Link href={`/shorts/${short.slug}`}>
@@ -93,7 +93,7 @@ shorts.reverse();
                 href="/shorts"
                 }
               >
-                <span>More</span>
+                <span>All Shorts</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
