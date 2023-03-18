@@ -12,6 +12,9 @@ Astro.response.headers.set(
 );
 
 const shorts = await getCollection("shorts");
+const sortedShorts = shorts.sort((a, b) =>
+  b.data.created.localeCompare(a.data.created)
+);
 ---
 
 <Layout title="Fynn - Shorts">
@@ -24,7 +27,7 @@ const shorts = await getCollection("shorts");
 
     <ul class="flex flex-col gap-8">
       {
-        shorts.map((short) => (
+        sortedShorts.map((short) => (
           <li class="flex gap-4">
             <time
               class="text-gray-a11 font-light"
