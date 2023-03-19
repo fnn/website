@@ -6,3 +6,4 @@ https://fynn.at/shorts/2023-03-15-how-to-set-macos-dock-animations-speed
 https://fynn.at/shorts/2023-03-16-how-to-chain-terminal-commands-in-bash
 https://fynn.at/shorts/2023-03-17-how-to-create-a-delay-function-in-javascript
 https://fynn.at/shorts/2023-03-18-how-to-use-formdata-in-client-side-react-forms
+https://fynn.at/shorts/2023-03-19-how-to-use-radix-colors-with-tailwind-css
