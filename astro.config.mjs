@@ -8,6 +8,7 @@ import mdx from "@astrojs/mdx";
 // https://astro.build/config
 export default defineConfig({
   output: "server",
+  site: "https://fynn.at",
   integrations: [solid(), tailwind(), mdx(), markdoc()],
   adapter: vercel({
     analytics: true,
