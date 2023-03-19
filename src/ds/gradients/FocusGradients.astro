@@ -13,11 +13,7 @@
     width: 700px;
     height: 1000px;
     transform: translate(-38%, -30%) rotate(32deg);
-    background-image: radial-gradient(
-      farthest-side,
-      var(--blue-4),
-      transparent
-    );
+    background-image: radial-gradient(farthest-side, var(--blue4), transparent);
   }
   .gradient-2 {
     position: fixed;
@@ -28,17 +24,13 @@
     height: 700px;
     filter: hue-rotate(8deg);
     transform: translate(-73%, 5%) rotate(-28deg);
-    background-image: radial-gradient(
-      farthest-side,
-      var(--blue-3),
-      transparent
-    );
+    background-image: radial-gradient(farthest-side, var(--blue3), transparent);
   }
   @media (prefers-color-scheme: dark) {
     .gradient-1 {
       background-image: radial-gradient(
         farthest-side,
-        var(--blue-2),
+        var(--blue2),
         transparent
       );
     }
@@ -46,7 +38,7 @@
       filter: hue-rotate(50deg);
       background-image: radial-gradient(
         farthest-side,
-        var(--blue-1),
+        var(--blue1),
         transparent
       );
     }
